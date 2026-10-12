@@ -12,34 +12,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. Clear out the bad Helm repo and add the highly stable Bitnami index
-      - name: Configure Helm Registries
+      # 1. Target the local Docker Desktop cluster context directly
+      - name: Set Kubernetes Context
         run: |
-          helm repo remove ingress-nginx || true
-          helm repo add bitnami https://bitnami.com
-          helm repo update
+          kubectl config use-context docker-desktop
 
-      # 2. Deploy the Ingress Controller using local system rights
-      - name: Install NGINX Ingress Controller
-        run: |
-          helm upgrade --install ingress-nginx bitnami/nginx-ingress-controller \
-            --namespace ingress-nginx \
-            --create-namespace \
-            --wait --timeout 5m
-
-      # 3. Rebuild the core docker application image locally
+      # 2. Rebuild the core docker application image locally
       - name: Build Local Docker Image
         run: |
           docker build -t radioragapp:latest .
 
-      # 4. Deploy your application configuration via Helm
+      # 3. Deploy your application configuration via Helm
       - name: Deploy to Docker Desktop Kubernetes
         run: |
           helm upgrade --install rag-release ./rag-chart \
             --set image.pullPolicy=Never \
             --wait
 
-      # 5. Verify pod health status
+      # 4. Verify pod health status
       - name: Verify App Status
         run: |
           kubectl get pods
