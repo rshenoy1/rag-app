@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # 8. Copy the remaining application files and directories into the container
 COPY app.py .
-COPY chroma_db/ ./chroma_db/
+#COPY chroma_db/ ./chroma_db/
 
 # 9. Expose the port that Gradio uses internally
 EXPOSE 7860
