@@ -15,21 +15,33 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. Manually add tools to the session path env
+      # 1. Dynamically append tool paths using native Windows environment commands
       - name: Set Local Paths
         run: |
-          $env:Path += ";C:\Program Files\Docker\Docker\resources\bin"
-          $env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64"
-          $env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WindowsApps"
+          \$env:Path += ";C:\Program Files\Docker\Docker\resources\bin"
+          \$env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64"
+          \$env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WindowsApps"
 
       # 2. Rebuild the core docker application image locally
       - name: Build Local Docker Image
         run: |
           docker build -t radioragapp:latest .
 
-      # 3. Deploy via Helm, passing your Groq key secret
+      # 3. Deploy via Helm, forcing proper PowerShell string interpolation
       - name: Deploy to Docker Desktop Kubernetes
         env:
-          GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_KEY: \${{ secrets.GROQ_API_KEY }}
         run: |
-          helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$env:GROQ_KEY" --wait
+          # Safely isolate the string token into a PowerShell variable
+          SecretKey = env:GROQ_KEY
+          
+          # Deploy using native Windows line continuation backticks (`)
+          helm upgrade --install rag-release ./rag-chart `
+            --set image.pullPolicy=Never `
+            --set environment.groq_api_key="$SecretKey" `
+            --wait
+
+      # 4. Verify pod health status
+      - name: Verify App Status
+        run: |
+          kubectl get pods
