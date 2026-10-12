@@ -9,6 +9,8 @@ spec:
       app: rag-app
   template:
     metadata:
+      annotations:
+        rollout-timestamp: "{{ now | date `20060102150405` }}"
       labels:
         app: rag-app
     spec:
