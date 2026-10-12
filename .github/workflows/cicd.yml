@@ -7,32 +7,29 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+    defaults:
+      run:
+        shell: powershell
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Force the runner session to inherit the absolute paths to your local tools
-      - name: Set Tool Path Environments
+      # 1. Manually add tools to the session path env
+      - name: Set Local Paths
         run: |
-          echo "C:\Program Files\Docker\Docker\resources\bin" >> $GITHUB_PATH
-          echo "C:\Users\sheno\AppData\Local\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64" >> $GITHUB_PATH
-          echo "C:\Users\sheno\AppData\Local\Microsoft\WindowsApps" >> $GITHUB_PATH
-        shell: bash
-
-      # 1. Target the local Docker Desktop cluster context directly
-      - name: Set Kubernetes Context
-        run: |
-          kubectl config use-context docker-desktop
+          $env:Path += ";C:\Program Files\Docker\Docker\resources\bin"
+          $env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64"
+          $env:Path += ";C:\Users\sheno\AppData\Local\Microsoft\WindowsApps"
 
       # 2. Rebuild the core docker application image locally
       - name: Build Local Docker Image
         run: |
           docker build -t radioragapp:latest .
 
-      # 3. Deploy via Helm, securely injecting the GitHub Secret at runtime
+      # 3. Deploy via Helm, passing your Groq key secret
       - name: Deploy to Docker Desktop Kubernetes
         env:
           GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$GROQ_KEY" --wait
+          helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$env:GROQ_KEY" --wait
