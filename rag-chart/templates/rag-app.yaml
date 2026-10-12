@@ -6,43 +6,16 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rag-app
+      app: rag-app  # 1. Check this label string
   template:
     metadata:
       annotations:
         rollout-timestamp: "{{ now | date `20060102150405` }}"
       labels:
-        app: rag-app
+        app: rag-app  # 2. Check this label string
     spec:
-      containers:
-        - name: rag-app
-          image: radioragapp:latest
-          imagePullPolicy: IfNotPresent  # Standard policy for local development
-          ports:
-            - containerPort: 7860
-          env:
-            - name: GROQ_API_KEY
-              value: {{ .Values.environment.groq_api_key | quote }}
-            - name: HF_HOME
-              value: {{ .Values.environment.hf_cache_dir | quote }}
-            - name: CHROMA_SERVER_HOST
-              value: "chromadb-service"
-            - name: CHROMA_SERVER_HTTP_PORT
-              value: "8000"
+      # ... rest of your deployment container settings ...
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: rag-app-service
-spec:
-  type: NodePort  # Exposes the service directly to your Windows machine
-  selector:
-    app: rag-app
-  ports:
-    - protocol: TCP
-      port: 7860
-      targetPort: 7860
-      nodePort: 30860  # This maps your app directly to port 30860 on Windows
 apiVersion: v1
 kind: Service
 metadata:
@@ -50,7 +23,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: rag-app # ⚠️ DOUBLE-CHECK: This must match your deployment spec.selector.matchLabels exactly!
+    app: rag-app    # 👈 3. THIS MUST MATCH THE TWO LABELS ABOVE EXACTLY!
   ports:
     - protocol: TCP
       port: 7860
