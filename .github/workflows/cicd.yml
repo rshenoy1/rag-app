@@ -1,0 +1,29 @@
+name: Local RAG App CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    # Forces the execution process to execute locally on your machine agent
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Rebuild the core docker application image locally
+      - name: Build Local Docker Image
+        run: |
+          docker build -t radioragapp:latest .
+
+      # 2. Deploy or refresh the application configuration via Helm
+      - name: Deploy to Local Kubernetes Cluster
+        run: |
+          helm upgrade --install rag-release ./rag-chart --wait
+
+      # 3. Verify target pod health logs
+      - name: Verify App Status
+        run: |
+          kubectl get pods
