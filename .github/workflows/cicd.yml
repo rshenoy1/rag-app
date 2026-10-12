@@ -12,6 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Force the runner session to inherit the absolute paths to your local tools
+      - name: Set Tool Path Environments
+        run: |
+          echo "C:\Program Files\Docker\Docker\resources\bin" >> $GITHUB_PATH
+          echo "C:\Users\sheno\AppData\Local\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64" >> $GITHUB_PATH
+          echo "C:\Users\sheno\AppData\Local\Microsoft\WindowsApps" >> $GITHUB_PATH
+        shell: bash
+
       # 1. Target the local Docker Desktop cluster context directly
       - name: Set Kubernetes Context
         run: |
@@ -25,15 +33,6 @@ jobs:
       # 3. Deploy via Helm, securely injecting the GitHub Secret at runtime
       - name: Deploy to Docker Desktop Kubernetes
         env:
-          # Pulls the secret safely out of GitHub's encrypted vault
           GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          helm upgrade --install rag-release ./rag-chart \
-            --set image.pullPolicy=Never \
-            --set environment.groq_api_key="$GROQ_KEY" \
-            --wait
-
-      # 4. Verify pod health status
-      - name: Verify App Status
-        run: |
-          kubectl get pods
+          helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$GROQ_KEY" --wait
