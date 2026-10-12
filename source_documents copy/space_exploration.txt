@@ -1,0 +1,9 @@
+Project Aether: The 2026 Mars In-Situ Resource Utilization Experiment
+Mission Overview Documents
+
+Project Aether is an unmanned exploration mission scheduled for launch in late November 2026. The primary objective is to test advanced In-Situ Resource Utilization (ISRU) systems on the Martian surface, specifically targeting the Utopia Planitia region.
+
+The Aether Lander carries a specialized payload named MOX-2. The MOX-2 instrument is designed to ingest the carbon-dioxide-rich Martian atmosphere and extract breathable oxygen at a target rate of 15 grams per hour. 
+
+Power Systems:
+Because dust storms in the Utopia Planitia region can severely degrade solar panels, Project Aether relies entirely on a next-generation Radioisotope Thermoelectric Generator (RTG) coupled with an experimental solid-state battery array. This setup guarantees a continuous power baseline of 120 Watts for a planned nominal mission duration of 480 Martian sols.

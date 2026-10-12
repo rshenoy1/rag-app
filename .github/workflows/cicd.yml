@@ -38,7 +38,7 @@ jobs:
           # Deploy using native Windows line continuation backticks (`)
           helm upgrade --install rag-release ./rag-chart `
             --set image.pullPolicy=Never `
-            --set environment.groq_api_key="$SecretKey" `
+            --set environment.groq_api_key="$env:GROQ_KEY" `
             --wait
 
       # 4. Verify pod health status
