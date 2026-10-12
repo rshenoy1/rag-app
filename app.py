@@ -21,7 +21,9 @@ chat_model = ChatGroq(model_name="openai/gpt-oss-120b", temperature=0.2)
 def rag_interface(user_question):
     results = vector_db.similarity_search(user_question, k=3)
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
-    
+
+    print("RAG Application Version 2.0 is now live!")
+
     messages = [
         ("system", "You are a precise assistant. Answer the user question strictly using the Context provided below. If the context does not contain the answer, reply that you don't know."),
         ("human", f"Context:\n{context_text}\n\nQuestion: {user_question}")

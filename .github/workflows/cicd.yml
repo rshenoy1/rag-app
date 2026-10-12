@@ -1,4 +1,4 @@
-name: Local RAG App CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,24 +6,30 @@ on:
 
 jobs:
   build-and-deploy:
-    # Forces the execution process to execute locally on your machine agent
     runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. Rebuild the core docker application image locally
+      # 1. Ensure we are explicitly targeting the Docker Desktop cluster context
+      - name: Set Kubernetes Context
+        run: |
+          kubectl config use-context docker-desktop
+
+      # 2. Rebuild the core docker application image locally
       - name: Build Local Docker Image
         run: |
           docker build -t radioragapp:latest .
 
-      # 2. Deploy or refresh the application configuration via Helm
-      - name: Deploy to Local Kubernetes Cluster
+      # 3. Deploy configuration via Helm using the local image policy
+      - name: Deploy to Docker Desktop Kubernetes
         run: |
-          helm upgrade --install rag-release ./rag-chart --wait
+          helm upgrade --install rag-release ./rag-chart \
+            --set image.pullPolicy=Never \
+            --wait
 
-      # 3. Verify target pod health logs
+      # 4. Verify pod health status
       - name: Verify App Status
         run: |
           kubectl get pods
