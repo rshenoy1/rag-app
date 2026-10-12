@@ -1,5 +1,5 @@
 ﻿environment:
-  groq_api_key: "Uncomment and paste your new Groq API key here"
+  groq_api_key: "placeholder-filled-by-ci-cd"
   hf_cache_dir: "/root/.cache/huggingface"
 
 chromadb:
@@ -20,4 +20,4 @@ ingress:
 image:
   repository: radioragapp
   tag: latest
-  pullPolicy: IfNotPresent  
+  pullPolicy: Never
