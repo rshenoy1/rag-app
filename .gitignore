@@ -1,0 +1,15 @@
+ignore/
+chroma_db/
+.gradio/
+radioragapp/
+__pycache__/
+
+venv/
+.venv/
+env/
+
+*.bin
+*.pkl
+*.h5
+
+*.tar

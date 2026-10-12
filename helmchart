@@ -1,0 +1,157 @@
+# 1. Create directory structures
+New-Item -ItemType Directory -Force -Path ".\rag-chart\templates"
+
+# 2. Write Chart.yaml
+@'
+apiVersion: v2
+name: rag-chart
+description: A Helm chart for my Gradio RAG application and ChromaDB
+type: application
+version: 0.1.0
+'@ | Out-File -FilePath ".\rag-chart\Chart.yaml" -Encoding utf8
+
+# 3. Write values.yaml
+@'
+environment:
+  groq_api_key: "your-groq-api-key-here"
+  hf_cache_dir: "/root/.cache/huggingface"
+
+chromadb:
+  image: chromadb/chroma:latest
+  replicaCount: 1
+  port: 8000
+  storageSize: 2Gi
+
+ragApp:
+  image: gradio-rag-app:latest
+  replicaCount: 1
+  port: 7860
+
+ingress:
+  host: rag-app.local
+'@ | Out-File -FilePath ".\rag-chart\values.yaml" -Encoding utf8
+
+# 4. Write templates/chromadb.yaml
+@'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chroma-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.chromadb.storageSize }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chromadb
+spec:
+  replicas: {{ .Values.chromadb.replicaCount }}
+  selector:
+    matchLabels:
+      app: chromadb
+  template:
+    metadata:
+      labels:
+        app: chromadb
+    spec:
+      containers:
+        - name: chromadb
+          image: {{ .Values.chromadb.image }}
+          ports:
+            - containerPort: {{ .Values.chromadb.port }}
+          env:
+            - name: IS_PERSISTENT
+              value: "TRUE"
+          volumeMounts:
+            - name: chroma-storage
+              mountPath: /chroma/chroma
+      volumes:
+        - name: chroma-storage
+          persistentVolumeClaim:
+            claimName: chroma-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chromadb-service
+spec:
+  selector:
+    app: chromadb
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: {{ .Values.chromadb.port }}
+'@ | Out-File -FilePath ".\rag-chart\templates\chromadb.yaml" -Encoding utf8
+
+# 5. Write templates/rag-app.yaml
+@'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-app
+spec:
+  replicas: {{ .Values.ragApp.replicaCount }}
+  selector:
+    matchLabels:
+      app: rag-app
+  template:
+    metadata:
+      labels:
+        app: rag-app
+    spec:
+      containers:
+        - name: rag-app
+          image: {{ .Values.ragApp.image }}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.ragApp.port }}
+          env:
+            - name: GROQ_API_KEY
+              value: {{ .Values.environment.groq_api_key | quote }}
+            - name: HF_HOME
+              value: {{ .Values.environment.hf_cache_dir | quote }}
+            - name: CHROMA_SERVER_HOST
+              value: "chromadb-service"
+            - name: CHROMA_SERVER_HTTP_PORT
+              value: "8000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-app-service
+spec:
+  selector:
+    app: rag-app
+  ports:
+    - protocol: TCP
+      port: 7860
+      targetPort: {{ .Values.ragApp.port }}
+'@ | Out-File -FilePath ".\rag-chart\templates\rag-app.yaml" -Encoding utf8
+
+# 6. Write templates/ingress.yaml
+@'
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rag-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rag-app-service
+                port:
+                  number: 7860
+'@ | Out-File -FilePath ".\rag-chart\templates\ingress.yaml" -Encoding utf8
+
+Write-Host "Helm chart structure successfully created!" -ForegroundColor Green

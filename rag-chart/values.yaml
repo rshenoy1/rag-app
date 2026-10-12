@@ -1,0 +1,17 @@
+﻿environment:
+  groq_api_key: "Uncomment and paste your new Groq API key here"
+  hf_cache_dir: "/root/.cache/huggingface"
+
+chromadb:
+  image: chromadb/chroma:latest
+  replicaCount: 1
+  port: 8000
+  storageSize: 2Gi
+
+ragApp:
+  image: radioragapp
+  replicaCount: 1
+  port: 7860
+
+ingress:
+  host: rag-app.local

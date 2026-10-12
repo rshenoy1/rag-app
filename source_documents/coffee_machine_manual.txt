@@ -1,0 +1,14 @@
+BaristaPro 9000 Espresso Machine - Troubleshooting Guide
+Model: BP-9000-XL
+
+Error Code 04: Water Flow Restriction
+If the digital display flashes 'ERR-04', the internal flow meter detects an obstruction. Turn off the machine immediately. Remove the water reservoir, clean the mesh intake filter located at the bottom of the tank, and reinsert it. If the error persists, perform a descaling cycle using the automated clean utility.
+
+Optimal Brewing Metrics:
+- Ideal Extraction Pressure: 9 Bars to 11 Bars.
+- Water Temperature Range: 195 to 205 degrees Fahrenheit (90 to 96 degrees Celsius).
+- Standard Double Shot Grind Mass: 18 grams of finely ground espresso beans.
+- Target Yield: 36 grams of liquid espresso extracted in exactly 25 to 30 seconds.
+
+Daily Maintenance:
+At the end of every operational day, the portafilter basket must be backflushed with clean water. Do not use commercial dish soaps inside the group head components as this will degrade the silicone gaskets.

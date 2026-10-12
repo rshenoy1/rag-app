@@ -1,0 +1,43 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-app
+  template:
+    metadata:
+      labels:
+        app: rag-app
+    spec:
+      containers:
+        - name: rag-app
+          image: radioragapp:latest
+          imagePullPolicy: IfNotPresent  # Standard policy for local development
+          ports:
+            - containerPort: 7860
+          env:
+            - name: GROQ_API_KEY
+              value: {{ .Values.environment.groq_api_key | quote }}
+            - name: HF_HOME
+              value: {{ .Values.environment.hf_cache_dir | quote }}
+            - name: CHROMA_SERVER_HOST
+              value: "chromadb-service"
+            - name: CHROMA_SERVER_HTTP_PORT
+              value: "8000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-app-service
+spec:
+  type: NodePort  # Exposes the service directly to your Windows machine
+  selector:
+    app: rag-app
+  ports:
+    - protocol: TCP
+      port: 7860
+      targetPort: 7860
+      nodePort: 30860  # This maps your app directly to port 30860 on Windows
