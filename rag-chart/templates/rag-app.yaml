@@ -43,3 +43,16 @@ spec:
       port: 7860
       targetPort: 7860
       nodePort: 30860  # This maps your app directly to port 30860 on Windows
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-app-service
+spec:
+  type: NodePort
+  selector:
+    app: rag-app # ⚠️ DOUBLE-CHECK: This must match your deployment spec.selector.matchLabels exactly!
+  ports:
+    - protocol: TCP
+      port: 7860
+      targetPort: 7860
+      nodePort: 30860
