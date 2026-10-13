@@ -24,7 +24,7 @@ vector_db = Chroma(
 #os.environ["GROQ_API_KEY"]
 
 # FIX: Swapped out the unrecognized string for an official Groq model ID
-chat_model = ChatGroq(model="llama-3.3-70b-versatile", 
+chat_model = ChatGroq(model="openai/gpt-oss-safeguard-20b", 
                       temperature=0.2,
                       groq_api_key=os.environ.get("GROQ_API_KEY"))
 
