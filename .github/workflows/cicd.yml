@@ -25,8 +25,10 @@ jobs:
         run: |
           docker build -t radioragapp:latest .
 
-      # Secure and stable deployment passing the environment variable cleanly
+      # Fix: PowerShell forces a clean text conversion before handing it to Helm
       - name: Deploy to Docker Desktop Kubernetes
         env:
           GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$env:GROQ_KEY" --wait
+        run: |
+          $CleanKey = "$env:GROQ_KEY".Trim()
+          helm upgrade --install rag-release ./rag-chart --set image.pullPolicy=Never --set environment.groq_api_key="$CleanKey" --wait
