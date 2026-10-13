@@ -22,7 +22,10 @@ spec:
             - containerPort: 7860
           env:
             - name: GROQ_API_KEY
-              value: {{ .Values.environment.groq_api_key | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: rag-app-secrets
+                  key: groq-api-key
             - name: HF_HOME
               value: {{ .Values.environment.hf_cache_dir | quote }}
             - name: CHROMA_SERVER_HOST
