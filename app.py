@@ -17,7 +17,7 @@ else:
 #os.environ["GROQ_API_KEY"]
 
 # FIX: Swapped out the unrecognized string for an official Groq model ID
-chat_model = ChatGroq(model_name="llama-3.1-8b-instant", 
+chat_model = ChatGroq(model="llama-3.1-8b-instant", 
                       temperature=0.2,
                       groq_api_key=os.environ.get("GROQ_API_KEY"))
 
