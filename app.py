@@ -12,11 +12,12 @@ if os.path.exists(DB_DIR):
 else:
     raise FileNotFoundError("Chroma database directory missing. Run ingest.py first.")
 
+# Leave these lines commented out! Your CI/CD pipeline injects the key securely at runtime.
 # PASTE YOUR NEW GROQ API KEY IN THE QUOTES BELOW and uncomment 
-#os.environ["GROQ_API_KEY"] = "TODO: PASTE YOUR GROQ API KEY HERE"
+#os.environ["GROQ_API_KEY"]
 
-# Using Llama 3.1 8B on Groq for ultra-fast, free conversational intelligence
-chat_model = ChatGroq(model_name="openai/gpt-oss-120b", temperature=0.2)
+# FIX: Swapped out the unrecognized string for an official Groq model ID
+chat_model = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0.2)
 
 def rag_interface(user_question):
     results = vector_db.similarity_search(user_question, k=3)
