@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Local Docker Image
         run: |
-          docker build -t radioragapp:latest .
+          docker build --no-cache -t radioragapp:latest .
 
       # Fix: PowerShell forces a clean text conversion before handing it to Helm
       - name: Deploy to Docker Desktop Kubernetes
