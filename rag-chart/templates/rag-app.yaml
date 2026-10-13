@@ -17,7 +17,7 @@ spec:
       containers:
         - name: rag-app
           image: radioragapp:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 7860
           env:
