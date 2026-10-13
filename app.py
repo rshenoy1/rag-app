@@ -3,14 +3,21 @@ import gradio as gr
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
+import chromadb
 
 DB_DIR = "./chroma_db"
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-if os.path.exists(DB_DIR):
-    vector_db = Chroma(persist_directory=DB_DIR, embedding_function=embeddings)
-else:
-    raise FileNotFoundError("Chroma database directory missing. Run ingest.py first.")
+# Read the network connection info injected into the container by Kubernetes
+chroma_host = os.environ.get("CHROMA_SERVER_HOST", "chromadb-service")
+chroma_port = os.environ.get("CHROMA_SERVER_HTTP_PORT", "8000")
+
+# Connect directly to your live cluster database pod over the network!
+remote_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
+vector_db = Chroma(
+    client=remote_client,
+    embedding_function=embeddings
+)
 
 # Leave these lines commented out! Your CI/CD pipeline injects the key securely at runtime.
 # PASTE YOUR NEW GROQ API KEY IN THE QUOTES BELOW and uncomment 

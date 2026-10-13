@@ -20,11 +20,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 7860
-          # 1. ADD THIS MOUNT BLOCK UNDER THE CONTAINER SETTINGS
-          volumeMounts:
-            - name: chroma-storage
-              mountPath: /app/chroma_db
-          # ----------------------------------------------------
           env:
             - name: GROQ_API_KEY
               value: {{ .Values.environment.groq_api_key | quote }}
@@ -34,12 +29,6 @@ spec:
               value: "chromadb-service"
             - name: CHROMA_SERVER_HTTP_PORT
               value: "8000"
-      # 2. ADD THIS VOLUMES BLOCK AT THE BOTTOM (ALIGNED WITH containers:)
-      volumes:
-        - name: chroma-storage
-          hostPath:
-            path: /run/desktop/mnt/host/c/rag/chroma_db
-            type: Directory
 ---
 apiVersion: v1
 kind: Service
